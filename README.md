@@ -3,6 +3,6 @@ First attempt at a recon script
 
 Make sure you run the setup script
 
-Usage ./recon.py <domain>
+Usage ./recon.py "<domain>"
 
 
