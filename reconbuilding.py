@@ -7,80 +7,87 @@
 #usage           :recon.py domain
 #=======================================================================
 import sys, os
-import pyperclip
 import fileinput
+import shlex
 
 if len(sys.argv) != 2:
     print "Usage: %s <domain>" % (sys.argv[0])
     sys.exit(0) 
 
 domain = sys.argv[1]
+amassoutput = domain + "/Amass/amass.txt"
 
-
+#Define folder setup
+def createfolders():
+    folders = ["NMAP", "Dig", "EyeWitness", "Amass", "Dirb"]
+    for x in folders:
+        j = domain + "/" + x + "/"
+        try:
+            os.makedirs(j)
+        except OSError:
+            pass
+   
 #Define amass
 def amassrun():
-    amassoutput = domain + "_amass.txt"
     amassvm = "amass -freq 480 -d " + domain + " -o " + amassoutput
     os.system(amassvm) 
-
+    
 #Define Dig
 def digrun():    
-    rundig = "dig -f " + amassoutput + " > " + domain + "_dig.txt"
+    rundig = "dig -f " + amassoutput + " > " + domain + "/Dig/dig.txt"
     os.system(rundig)
 
 #Define Format the IPS for NMAP
 def formatdigips():
-    dig_ips_formated = "cat " + domain + "_dig.txt" + " | grep -v SERVER | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sort -u > " + domain + "_digformated.txt"
+    dig_ips_formated = "cat " + domain + "/Dig/dig.txt" + " | grep -v SERVER | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sort -u > " + domain + "/Dig/digformated.txt"
     os.system(dig_ips_formated)
 
 #Define NMAP PORTS 80, 8080, and 443
 def nmapwebrun():
-    nmap_fullcommand = "nmap -v -p 80,8080,443 -oA " + domain + "_webonly_nmap -iL " + domain + "_digformated.txt"
+    nmap_fullcommand = "nmap -v -p 80,8080,443 -oA " + domain + "/NMAP/webonly_nmap -iL " + domain + "/Dig/digformated.txt"
     os.system(nmap_fullcommand)
        
 #Define NMAP
 def nmapfullrun():
-    nmap_fullcommand = "nmap -v -p 1-65535 -oA " + domain + "_allport_nmap -iL " + domain + "_digformated.txt"
+    nmap_fullcommand = "nmap -v -p 1-65535 -oA " + domain + "/NMAP/allport_nmap -iL " + domain + "/Dig/digformated.txt"
     os.system(nmap_fullcommand)
-
-#Define which ports to dirb
-def dirbports():
-    dirbhttpcommand = "cat " + domain + "_webonly_nmap.nmap | grep open | grep -v https | cut -d '/' -f1 > " + domain + "_open_http_ports.txt"
-    dirbhttpscommand = "cat " + domain + "_webonly_nmap.nmap | grep open | grep -v http | cut -d '/' -f1 > " + domain + "_open_https_ports.txt"
-    os.system(dirbhttpcommand)
-    os.system(dirbhttpscommand)   
 
 #Define Dirb run
 def dirbrun():
-    dirbhttpports =  domain + "_open_http_ports.txt" 
-    dirbhttpsports = domain + "_open_https_ports.txt"
-    fh = open(dirbhttpports)
+    fh = open("parsed_xml.txt")
     for line in fh:
-        dirbruncommand = "dirb http://" + domain + ":" + line + ">>" + domain + "_all_dirb_output.txt"
-        print dirbruncommand
-        #os.system(dirbruncommand)
+        editline = line.rstrip('\n')
+        output = line.translate(None, '/')
+        dirbruncommand = "dirb " + editline + " -o " + domain + "/Dirb/" + output
+        os.system(dirbruncommand)         
     fh.close
-
 
 #Define EyeWitness
 def eyewitenessrun():
-    eyewitnesscommand = "python /root/tools/EyeWitness/EyeWitness.py --web --no-prompt -x " + domain + "_webonly_nmap.xml"
+    eyewitnesscommand = "python /root/tools/EyeWitness/EyeWitness.py --web --no-prompt -x " + domain + "/NMAP/webonly_nmap.xml" + " -d " + domain + "/EyeWitness/"
     os.system(eyewitnesscommand)
 
 #define Nikto
 def niktorun():
     print " niktorun"
 
+# Define cleanup
+def cleanup():
+	removethese = ["parsed_xml.txt" , "geckodriver.log"]
+	for r in removethese:
+		os.remove(r)
+    
+
 #define spider
 
 
 #execute code below
-
-#amassrun()
-#digrun()
-#formatdigips()
-#nmapwebrun()
-#nmaprun()
-#dirbports()
-#dirbrun() # not working
-eyewitenessrun() # working lets work on output
+createfolders()
+amassrun()
+digrun()
+formatdigips()
+nmapwebrun()
+#nmaprun() # Double check
+eyewitenessrun() 
+dirbrun() 
+cleanup()
