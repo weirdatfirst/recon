@@ -6,20 +6,25 @@
 #version         :0.1
 #usage           :recon.py domain
 #=======================================================================
+
+
+#AMASS kept freaking out so switched over to Sublist3r
+
 import sys, os
 import fileinput
 import shlex
 
 if len(sys.argv) != 2:
-    print "Usage: %s <domain>" % (sys.argv[0])
-    sys.exit(0) 
+	print "Usage: %s <domain>" % (sys.argv[0])
+	sys.exit(0) 
 
 domain = sys.argv[1]
-amassoutput = domain + "/Amass/amass.txt"
+#amassoutput = domain + "/Amass/amass.txt"
+sublistoutput = domain + "/Sublist3r/Sublist3r.txt"
 
 #Define folder setup
 def createfolders():
-    folders = ["NMAP", "Dig", "EyeWitness", "Amass", "Dirb", "Nikto"]
+    folders = ["NMAP", "Dig", "EyeWitness", "Sublist3r", "Dirb", "Nikto"]
     for x in folders:
         j = domain + "/" + x + "/"
         try:
@@ -29,14 +34,17 @@ def createfolders():
    
 #Define amass
 def amassrun():
-	startamass = "systemctl start snapd"
-	os.system(startamass)
-    amassvm = "amass -freq 480 -d " + domain + " -o " + amassoutput
-    os.system(amassvm) 
-    
+	amassvm = "amass -freq 480 -d " + domain + " -o " + amassoutput
+	os.system(amassvm) 
+
+def Sublist3r():
+	sublistcommand = "python Sublist3r/sublist3r.py -d " + domain + " -o " + sublistoutput
+	os.system(sublistcommand)
+	#print sublistcommand
+
 #Define Dig
 def digrun():    
-    rundig = "dig -f " + amassoutput + " > " + domain + "/Dig/dig.txt"
+    rundig = "dig -f " + sublistoutput + " > " + domain + "/Dig/dig.txt"
     os.system(rundig)
 
 #Define Format the IPS for NMAP
@@ -76,8 +84,8 @@ def niktorun():
 		editline = line.rstrip('\n')
 		output = line.translate(None, '/')
 		niktocommand = "nikto -h " + editline + " -Display V -F htm -output " + domain + "/Nikto/" + output + ".html"
-		#os.system(niktocommand)         
-		print niktocommand
+		os.system(niktocommand)         
+		#print niktocommand
 	fh.close
 
 # Define cleanup
@@ -92,11 +100,12 @@ def cleanup():
 
 #execute code below
 createfolders()
-amassrun()
+#amassrun() maybe come back to someday
+Sublist3r()
 digrun()
 formatdigips()
 nmapwebrun()
-#nmaprun() # Double check
+#nmaprun() # Only enable if you want all ports. Takes a long time!!
 eyewitenessrun() 
 dirbrun() 
 niktorun()
