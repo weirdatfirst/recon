@@ -19,7 +19,7 @@ amassoutput = domain + "/Amass/amass.txt"
 
 #Define folder setup
 def createfolders():
-    folders = ["NMAP", "Dig", "EyeWitness", "Amass", "Dirb"]
+    folders = ["NMAP", "Dig", "EyeWitness", "Amass", "Dirb", "Nikto"]
     for x in folders:
         j = domain + "/" + x + "/"
         try:
@@ -29,6 +29,8 @@ def createfolders():
    
 #Define amass
 def amassrun():
+	startamass = "systemctl start snapd"
+	os.system(startamass)
     amassvm = "amass -freq 480 -d " + domain + " -o " + amassoutput
     os.system(amassvm) 
     
@@ -64,12 +66,19 @@ def dirbrun():
 
 #Define EyeWitness
 def eyewitenessrun():
-    eyewitnesscommand = "python /root/tools/EyeWitness/EyeWitness.py --web --no-prompt -x " + domain + "/NMAP/webonly_nmap.xml" + " -d " + domain + "/EyeWitness/"
+    eyewitnesscommand = "python EyeWitness/EyeWitness.py --web --no-prompt -x " + domain + "/NMAP/webonly_nmap.xml" + " -d " + domain + "/EyeWitness/"
     os.system(eyewitnesscommand)
 
 #define Nikto
 def niktorun():
-    print " niktorun"
+	fh = open("parsed_xml.txt")
+	for line in fh:
+		editline = line.rstrip('\n')
+		output = line.translate(None, '/')
+		niktocommand = "nikto -h " + editline + " -Display V -F htm -output " + domain + "/Nikto/" + output + ".html"
+		#os.system(niktocommand)         
+		print niktocommand
+	fh.close
 
 # Define cleanup
 def cleanup():
@@ -90,4 +99,5 @@ nmapwebrun()
 #nmaprun() # Double check
 eyewitenessrun() 
 dirbrun() 
+niktorun()
 cleanup()
