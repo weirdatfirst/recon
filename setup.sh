@@ -9,6 +9,5 @@ apt-get get update
 sudo sh EyeWitness/setup/setup.sh -y
 sudo pip install -r Sublist3r/requirements.txt
 sudo apt-get install -y nmap 
-sudo apt-get isntall -y dirb
+sudo apt-get install -y dirb
 sudo apt-get install -y nikto
-
