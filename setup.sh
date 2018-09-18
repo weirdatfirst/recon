@@ -7,5 +7,7 @@ echo "deb http://http.kali.org/kali kali-rolling main contrib non-free" > /etc/a
 apt-get get update
 sudo sh EyeWitness/setup/setup.sh -y
 sudo pip install -r Sublist3r/requirements.txt
-sudo apt-get install -y nmap dirb nikto
+sudo apt-get install -y nmap 
+sudo apt-get isntall -y dirb
+sudo apt-get install -y nikto
 
