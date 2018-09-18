@@ -74,7 +74,7 @@ def dirbrun():
 
 #Define EyeWitness
 def eyewitenessrun():
-    eyewitnesscommand = "python EyeWitness/EyeWitness.py --web --no-prompt -x " + domain + "/NMAP/webonly_nmap.xml" + " -d " + domain + "/EyeWitness/"
+    eyewitnesscommand = "python EyeWitness/EyeWitness.py --headless --no-prompt -x " + domain + "/NMAP/webonly_nmap.xml" + " -d " + domain + "/EyeWitness/"
     os.system(eyewitnesscommand)
 
 #define Nikto
