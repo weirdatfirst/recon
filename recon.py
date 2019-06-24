@@ -25,7 +25,7 @@ sublistoutput = domain + "/Sublist3r/Sublist3r.txt"
 
 # Define folder setup
 def createfolders():
-    folders = ["NMAP", "Dig", "EyeWitness", "Sublist3r", "gobuster", "Nikto"]
+    folders = ["NMAP", "Dig", "EyeWitness", "Sublist3r", "gobuster", "Nikto", "masscan"]
     for x in folders:
         j = domain + "/" + x + "/"
         try:
@@ -41,7 +41,7 @@ def amassrun():
 
 
 def Sublist3r():
-    sublistcommand = "sudo python Sublist3r/sublist3r.py -d " + domain + " -o " + sublistoutput
+    sublistcommand = "sudo python /root/tools/Sublist3r/sublist3r.py -d " + domain + " -o " + sublistoutput
     os.system(sublistcommand)
 
 
@@ -67,7 +67,12 @@ def nmapwebrun():
 
 # Define NMAP
 def nmapfullrun():
-    nmap_fullcommand = "sudo nmap -v -p 1-65535 -oA " + domain + "/NMAP/allport_nmap -iL " + domain + "/Dig/digformated.txt"
+    nmap_fullcommand = "sudo nmap -p- -oA " + domain + "/NMAP/allport_nmap -iL " + domain + "/Dig/digformated.txt"
+    os.system(nmap_fullcommand)
+
+# Define Massscan
+def masscanrun():
+    nmap_fullcommand = "sudo masscan " + domain + "/masscan/allport_nmap -iL " + domain + "/Dig/digformated.txt"
     os.system(nmap_fullcommand)
 
 
@@ -85,7 +90,7 @@ def gobusterrun():
 
 # Define EyeWitness
 def eyewitenessrun():
-    eyewitnesscommand = "sudo python EyeWitness/EyeWitness.py --headless --no-prompt -x " + domain + "/NMAP/webonly_nmap.xml" + " -d " + domain + "/EyeWitness/"
+    eyewitnesscommand = "sudo python /root/tools/EyeWitness/EyeWitness.py --headless --no-prompt -x " + domain + "/NMAP/webonly_nmap.xml" + " -d " + domain + "/EyeWitness/"
     os.system(eyewitnesscommand)
 
 
